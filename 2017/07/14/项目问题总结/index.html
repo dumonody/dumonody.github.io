@@ -93,16 +93,16 @@
 
 
 
-<meta name="description" content="Cease to struggle, cease to live!">
+<meta name="description" content="问题1：使用eclipse连接数据库时，出现如下错误：null,  message from server: “Host ‘czkct-PC’ is not allowed to connect to this MySQL server” 解决办法：错误解释：服务器没有授权给你这个ip是不能连接的你想root用户名使用root密码从任何主机连接到MySQL服务器的话。运行命令：mysql&amp;gt;G">
 <meta property="og:type" content="article">
-<meta property="og:title" content="test">
-<meta property="og:url" content="http://duyanhan.com/2017/07/12/test/index.html">
+<meta property="og:title" content="咸鱼">
+<meta property="og:url" content="http://duyanhan.com/2017/07/14/项目问题总结/index.html">
 <meta property="og:site_name" content="咸鱼">
-<meta property="og:description" content="Cease to struggle, cease to live!">
-<meta property="og:updated_time" content="2017-07-12T02:29:06.158Z">
+<meta property="og:description" content="问题1：使用eclipse连接数据库时，出现如下错误：null,  message from server: “Host ‘czkct-PC’ is not allowed to connect to this MySQL server” 解决办法：错误解释：服务器没有授权给你这个ip是不能连接的你想root用户名使用root密码从任何主机连接到MySQL服务器的话。运行命令：mysql&amp;gt;G">
+<meta property="og:updated_time" content="2017-07-14T03:02:25.599Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="test">
-<meta name="twitter:description" content="Cease to struggle, cease to live!">
+<meta name="twitter:title" content="咸鱼">
+<meta name="twitter:description" content="问题1：使用eclipse连接数据库时，出现如下错误：null,  message from server: “Host ‘czkct-PC’ is not allowed to connect to this MySQL server” 解决办法：错误解释：服务器没有授权给你这个ip是不能连接的你想root用户名使用root密码从任何主机连接到MySQL服务器的话。运行命令：mysql&amp;gt;G">
 
 
 
@@ -130,13 +130,13 @@
 
 
 
-  <link rel="canonical" href="http://duyanhan.com/2017/07/12/test/"/>
+  <link rel="canonical" href="http://duyanhan.com/2017/07/14/项目问题总结/"/>
 
 
 
 
 
-  <title>test | 咸鱼</title>
+  <title> | 咸鱼</title>
   
 
 
@@ -255,7 +255,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://duyanhan.com/2017/07/12/test/">
+    <link itemprop="mainEntityOfPage" href="http://duyanhan.com/2017/07/14/项目问题总结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="穿着裤衩跳、">
@@ -272,7 +272,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">test</h1>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
 
         <div class="post-meta">
@@ -284,8 +284,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-12T10:29:06+08:00">
-                2017-07-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-14T09:24:52+08:00">
+                2017-07-14
               </time>
             
 
@@ -319,7 +319,12 @@
       
 
       
-        
+        <p>问题1：使用eclipse连接数据库时，出现如下错误：<br>null,  message from server: “Host ‘czkct-PC’ is not allowed to connect to this MySQL server”</p>
+<p>解决办法：<br>错误解释：服务器没有授权给你这个ip是不能连接的<br>你想root用户名使用root密码从任何主机连接到MySQL服务器的话。<br>运行命令：mysql&gt;GRANT ALL PRIVILEGES ON <em>.</em> TO ‘root’@’%’ IDENTIFIED BY ‘root’ WITH GRANT OPTION;<br>前一个root是登录名，后一个root是登录密码</p>
+<p>问题2：解决上面的权限问题后，从其他主机连接本机数据库，出现错误Communications link failure<br>Last packet sent to the server was 0 ms ago.</p>
+<p>解决办法：360强制默认开启了防火墙，关闭防火墙即可！</p>
+<p>问题3：项目小组要统一编码环境，统一使用UTF-8进行编码，防止程序注释乱码</p>
+
       
     </div>
 
@@ -355,8 +360,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/07/12/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/2017/07/13/eclipse快捷键/" rel="next" title="eclipse 快捷键">
+                <i class="fa fa-chevron-left"></i> eclipse 快捷键
               </a>
             
           </div>
@@ -364,10 +369,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/07/13/eclipse快捷键/" rel="prev" title="eclipse 快捷键">
-                eclipse 快捷键 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
