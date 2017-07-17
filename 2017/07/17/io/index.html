@@ -1,0 +1,696 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="File 硬盘中的文件，无论是图片文件、视频文件、文本文件，其中的内容都是以二进制存储的！！！ 使用看图工具打开图片文件、播放器打开视频文件、文本编辑器打开文本文件器，其实都是以指定编码的格式解码二进制才出现了对应的图片、视频、文字！！！ 数据持久化到硬盘上的体现：文件 构造&amp;amp;分隔符12345678910111213141516171819202122232425262728293031">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IO">
+<meta property="og:url" content="http://duyanhan.com/2017/07/17/io/index.html">
+<meta property="og:site_name" content="咸鱼">
+<meta property="og:description" content="File 硬盘中的文件，无论是图片文件、视频文件、文本文件，其中的内容都是以二进制存储的！！！ 使用看图工具打开图片文件、播放器打开视频文件、文本编辑器打开文本文件器，其实都是以指定编码的格式解码二进制才出现了对应的图片、视频、文字！！！ 数据持久化到硬盘上的体现：文件 构造&amp;amp;分隔符12345678910111213141516171819202122232425262728293031">
+<meta property="og:updated_time" content="2017-07-17T17:32:23.103Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IO">
+<meta name="twitter:description" content="File 硬盘中的文件，无论是图片文件、视频文件、文本文件，其中的内容都是以二进制存储的！！！ 使用看图工具打开图片文件、播放器打开视频文件、文本编辑器打开文本文件器，其实都是以指定编码的格式解码二进制才出现了对应的图片、视频、文字！！！ 数据持久化到硬盘上的体现：文件 构造&amp;amp;分隔符12345678910111213141516171819202122232425262728293031">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://duyanhan.com/2017/07/17/io/"/>
+
+
+
+
+
+  <title>IO | 咸鱼</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">咸鱼</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://duyanhan.com/2017/07/17/io/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="穿着裤衩跳、">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="咸鱼">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">IO</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-17T21:39:10+08:00">
+                2017-07-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<h2 id="File"><a href="#File" class="headerlink" title="File"></a>File</h2></blockquote>
+<p>硬盘中的文件，无论是图片文件、视频文件、文本文件，其中的内容都是以<strong>二进制</strong>存储的！！！</p>
+<p>使用看图工具打开图片文件、播放器打开视频文件、文本编辑器打开文本文件器，<br>其实都是以指定编码的格式解码二进制才出现了对应的图片、视频、文字！！！</p>
+<p>数据<strong>持久化</strong>到硬盘上的体现：<strong>文件</strong></p>
+<h3 id="构造-amp-分隔符"><a href="#构造-amp-分隔符" class="headerlink" title="构造&amp;分隔符"></a>构造&amp;分隔符</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">import java.io.File;</div><div class="line"></div><div class="line">public class FileDemo &#123;</div><div class="line"></div><div class="line">	public static void main(String[] args)</div><div class="line">	&#123;</div><div class="line">		</div><div class="line">//		将demoTest封装成File对象</div><div class="line">//		demoTest可以是[文件]，也可以是[文件夹]</div><div class="line">//		demoTest可以[存在]，也可以[不存在]</div><div class="line">//		都可以封装成一个File对象</div><div class="line">//		[字符串路径]中的斜杠分隔符可以是单个正斜杠/,或者两个反斜杠\\（由于转义，所以反斜杠需要两个）</div><div class="line">		 </div><div class="line">		</div><div class="line">		String pathName = &quot;C:\\Users\\czkct\\Desktop\\demoTest&quot;;</div><div class="line">		File f1 = new File(pathName);</div><div class="line">		System.out.println(f1);	// 输出的是“C:\Users\czkct\Desktop\demoTest”</div><div class="line">		</div><div class="line"></div><div class="line">		String parent = &quot;C:\\Users\\czkct\\Desktop&quot;;</div><div class="line">		String child = &quot;demoTest&quot;;</div><div class="line">		File f2 = new File(parent, child);</div><div class="line">		System.out.println(f2);	// 输出的是“C:\Users\czkct\Desktop\demoTest”</div><div class="line">		</div><div class="line">		</div><div class="line">		File f3 = new File(parent);</div><div class="line">		File f4 = new File(f3, child);</div><div class="line">		System.out.println(f4);	// 输出的是“C:\Users\czkct\Desktop\demoTest”</div><div class="line">		</div><div class="line">		</div><div class="line">//		路径的跨平台写法：使用默认名称分隔符File.separator</div><div class="line">		String pathName2 = &quot;czkct&quot; + File.separator + &quot;Desktop&quot; + File.separator + &quot;demoTest&quot;;</div><div class="line">		System.out.println(pathName2);	// 输出的是“czkct\Desktop\demoTest”</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="常用属性获取"><a href="#常用属性获取" class="headerlink" title="常用属性获取"></a>常用属性获取</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">import java.io.File;</div><div class="line">import java.sql.Date;</div><div class="line">import java.text.DateFormat;</div><div class="line"></div><div class="line">public class FileMethodDemo &#123;</div><div class="line"></div><div class="line">	public static void main(String[] args) &#123;</div><div class="line"></div><div class="line">		File f = new File(&quot;src/com/duyanhan/io/a/file/FileMethodDemo.java&quot;);</div><div class="line">		// 获取文件对象的绝对路径</div><div class="line">		System.out.println(f.getAbsolutePath());	// D:\MyCode\Workspace_JavaSE_Project\JavaIO\src\com\duyanhan\io\a\file\FileMethodDemo.java</div><div class="line">		</div><div class="line">		// 获取File对象中封装的路径，封装进去的是什么路径，获取的就是什么路径</div><div class="line">		System.out.println(f.getPath());</div><div class="line">		</div><div class="line">		// 获取文件名</div><div class="line">		System.out.println(f.getName());	// FileMethodDemo.java</div><div class="line">		</div><div class="line">		// 获取文件最后的修改时间   先获取毫秒数</div><div class="line">		long time = f.lastModified();</div><div class="line">		// 再将毫秒数转换成Date类型，然后格式化成日期字符串</div><div class="line">		String str_date = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(new Date(time));</div><div class="line">		System.out.println(str_date);</div><div class="line">		</div><div class="line">		// 获取文件字节数</div><div class="line">		System.out.println(f.length());</div><div class="line">		</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="对文件-amp-文件夹的操作"><a href="#对文件-amp-文件夹的操作" class="headerlink" title="对文件&amp;文件夹的操作"></a>对文件&amp;文件夹的操作</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">import java.io.File;</div><div class="line">import java.io.IOException;</div><div class="line"></div><div class="line">public class FileOpDemo &#123;</div><div class="line"></div><div class="line">	public static void main(String[] args) &#123;</div><div class="line">		</div><div class="line">		try &#123;</div><div class="line">			File f = new File(&quot;C:\\test.abc&quot;);</div><div class="line">			</div><div class="line">//		创建文件</div><div class="line">//			前提是：抽象路径名指向的文件(夹)不存在，才会返回true</div><div class="line">			boolean b1 = f.createNewFile();</div><div class="line">			System.out.println(&quot;创建&quot;+(b1==true?&quot;&quot;:&quot;不&quot;)+&quot;成功！&quot;);</div><div class="line">			</div><div class="line">		</div><div class="line">//		判断文件是否存在</div><div class="line">//			前提是：文件(夹)存在，才会返回true</div><div class="line">			boolean b3 = f.exists();</div><div class="line">			System.out.println(&quot;文件(夹)&quot;+(b3==true?&quot;&quot;:&quot;不&quot;)+&quot;存在！&quot;);</div><div class="line">			</div><div class="line">			</div><div class="line">//		删除文件</div><div class="line">//			前提是：文件存在，且不被占用，才会返回true</div><div class="line">//			注意：删除的文件不会进入回收站，需要谨慎！！！</div><div class="line">			boolean b2 = f.delete();</div><div class="line">			System.out.println(&quot;删除&quot;+(b2==true?&quot;&quot;:&quot;不&quot;)+&quot;成功！&quot;);</div><div class="line">		</div><div class="line">//		对目录操作：创建、删除、判断是否存在</div><div class="line">			File dir = new File(&quot;E:\\aa\\bb\\cc\\dd&quot;);</div><div class="line">//		创建目录</div><div class="line">			boolean b4 = dir.mkdirs();	// 代表在指定路径E:\\aa\\bb\\cc下创建dd目录</div><div class="line">			boolean b5 = dir.mkdirs();	// 代表创建aa、bb、cc、dd多级目录，推荐使用这种</div><div class="line">			System.out.println(b4);</div><div class="line">			System.out.println(b5);</div><div class="line">			</div><div class="line">//		删除文件夹</div><div class="line">//			前提是：待删除的目录中为空，没其它内容，才可以删除，返回true</div><div class="line">			boolean b6 = dir.delete();</div><div class="line">			System.out.println(&quot;删除&quot;+(b6==true?&quot;&quot;:&quot;不&quot;)+&quot;成功！&quot;);</div><div class="line">			</div><div class="line">//		判断是文件还是文件夹</div><div class="line">//			前提是：文件(夹)已经存在，才可以判断</div><div class="line">//			注意：这个很重要，不要认为有扩展名的就是文件，没有扩展名的就一定是目录</div><div class="line">			File f2 = new File(&quot;E:\\java.txt&quot;);</div><div class="line">			f2.mkdir();</div><div class="line">			if(f2.exists())</div><div class="line">			&#123;</div><div class="line">				System.out.println(f2.isFile());</div><div class="line">				System.out.println(f2.isDirectory());</div><div class="line">			&#125;</div><div class="line">			</div><div class="line">		&#125; catch (IOException e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="获取指定目录下的所有内容"><a href="#获取指定目录下的所有内容" class="headerlink" title="获取指定目录下的所有内容"></a>获取指定目录下的所有内容</h3><p>```</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/15/java_reflect_fields/" rel="next" title="java反射获取的自定义类中声明的成员变量，是否有序？">
+                <i class="fa fa-chevron-left"></i> java反射获取的自定义类中声明的成员变量，是否有序？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+
+  <aside id="sidebar" class="sidebar">
+
+    <div id="sidebar-dimmer"></div>
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpg"
+               alt="穿着裤衩跳、" />
+          <p class="site-author-name" itemprop="name">穿着裤衩跳、</p>
+           
+              <p class="site-description motion-element" itemprop="description">Cease to struggle, cease to live!</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dumonody" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/czkct" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#File"><span class="nav-number">1.</span> <span class="nav-text">File</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#构造-amp-分隔符"><span class="nav-number">1.1.</span> <span class="nav-text">构造&分隔符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用属性获取"><span class="nav-number">1.2.</span> <span class="nav-text">常用属性获取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对文件-amp-文件夹的操作"><span class="nav-number">1.3.</span> <span class="nav-text">对文件&文件夹的操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取指定目录下的所有内容"><span class="nav-number">1.4.</span> <span class="nav-text">获取指定目录下的所有内容</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">穿着裤衩跳、</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+
+</html>
