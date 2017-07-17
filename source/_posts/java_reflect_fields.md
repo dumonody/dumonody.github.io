@@ -2,7 +2,7 @@
 title: java反射获取的自定义类中声明的成员变量，是否有序？
 ---
 
-```
+```java
 // User.java
 public class User {
 
@@ -55,7 +55,7 @@ public class User {
 
 ```
 
-```
+```java
 // Main.java
 import java.lang.reflect.Field;
 
