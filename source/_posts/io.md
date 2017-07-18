@@ -148,3 +148,158 @@ public class FileOpDemo {
 ```
 ### 获取指定目录下的所有内容
 ```java
+import java.io.File;
+import java.text.DateFormat;
+import java.util.Date;
+
+public class FileOpDemo2 {
+
+	public static void main(String[] args) {
+
+	// 获取一个目录下的所有内容的两种方式：
+		// 注意：必须已经存在，且必须是目录，否则会有空指针异常！！！
+		File dir = new File("C:\\Program Files");
+		
+	// 健壮性判断！！
+		if(dir.exists() && dir.isDirectory())
+		{
+			// 如果只要此目录下的所有内容的名称：
+			String[] names = dir.list();
+			for(String name : names)
+			{
+				System.out.println(name);
+			}
+			
+			
+			// 如果要此目录下的所有内容的对象：
+			// （更推荐这种，因为有了对象，可以对每个对象进行更多操作）
+			File[] files = dir.listFiles();
+			for(File file : files)
+			{
+				System.out.print(file + "   ");
+				System.out.println(DateFormat.getDateTimeInstance().format(new Date(file.lastModified())));
+			}
+		}
+	}
+
+}
+```
+### 获取目录中满足条件的内容
+#### 一、FileNameFilter接口：获取目录中，在名称上满足指定条件的内容
+
+**下面以获取指定目录中.java文件为例：**
+##### 1.先实现FileNameFilter这个过滤器接口
+```java
+import java.io.File;
+import java.io.FilenameFilter;
+
+public class JavaFileFileter implements FilenameFilter {
+
+	@Override
+	public boolean accept(File dir, String name) {
+		return name.endsWith(".java");
+	}
+}
+```
+##### 2.使用实现了过滤器接口的实例
+```java
+import java.io.File;
+
+public class FileOpDemo3 {
+
+	public static void main(String[] args) {
+
+		File dir = new File("C:\\Program Files");
+		
+		if(dir.exists() && dir.isDirectory())
+		{
+			File[] files = dir.listFiles(new JavaFileFileter());
+			for(File f : files)
+			{
+				System.out.println(f);
+			}
+		}
+		
+	}
+}
+
+```
+##### 3.总结:更灵活的写法
+```java
+import java.io.File;
+import java.io.FilenameFilter;
+
+public class FilenameFilterBySuffix implements FilenameFilter {
+
+	private String suffix;
+
+	public FilenameFilterBySuffix(String suffix) {
+		this.suffix = suffix;
+	}
+
+	@Override
+	public boolean accept(File dir, String name) {
+		return name.endsWith(suffix);
+	}
+}
+```
+```java
+import java.io.File;
+
+public class FileOpDemo4 {
+
+	public static void main(String[] args) {
+
+		File dir = new File("C:\\Program Files");
+		
+		if(dir.exists() && dir.isDirectory())
+		{
+			File[] files = dir.listFiles(new FilenameFilterBySuffix(".java"));
+			for(File f : files)
+			{
+				System.out.println(f);
+			}
+		}
+		
+	}
+}
+```
+#### 二、FileFilter接口：获取目录中，在文件上满足指定条件的内容
+
+**下面以获取指定目录中所有目录为例：**
+##### 1.先实现FileFilter这个过滤器接口
+```java
+import java.io.File;
+import java.io.FileFilter;
+
+public class FileFilterByDir implements FileFilter {
+
+	@Override
+	public boolean accept(File pathname) {
+		return pathname.isDirectory();
+	}
+
+}
+```
+##### 2.使用实现了过滤器接口的实例
+```java
+import java.io.File;
+
+public class FileOpDemo5 {
+
+	public static void main(String[] args) {
+
+		File dir = new File("C:\\Program Files");
+		
+		if(dir.exists() && dir.isDirectory())
+		{
+			File[] files = dir.listFiles(new FileFilterByDir());
+			for(File f : files)
+			{
+				System.out.println(f);
+			}
+		}
+		
+	}
+}
+```
