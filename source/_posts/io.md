@@ -438,14 +438,18 @@ class Queue<E> {
 - **注意：流的输入和输出方向是针对内存而言的**
 - **从内存到文件，是输出；从文件到内存，是输入。**
 
-### OutputStream：所有输出字节流类的超类
-- 1、操作的数据都是字节
-- 2、定义了输出字节流的基本共性功能
-- 3、本身是个抽象类，不能直接new出一个实例
-- 4、输出流中定义的写方法都是write
-- 5、**规律：它的所有子类名称后缀是OutputStream，子类的名称前缀代表功能**
+### 字节流
 
-#### 将数据写入到文件中
+#### OutputStream：所有输出字节流类的超类
+- 操作的数据都是字节
+- 定义了输出字节流的基本共性功能
+- 本身是个抽象类，不能直接new出一个实例
+- 输出流中定义的写方法都是write
+ - void write()方法：将指定字节写入输出流
+ - void write(byte[] b)方法：将 b.length 个字节从指定 byte 数组写入输出流中
+- **规律：它的所有子类名称后缀是OutputStream，子类的名称前缀代表功能**
+
+##### 将数据写入到文件中
 **下面以FileOutputStream为例：将数据写入到文件中**
 FileOutputStream后缀是OutputStream，意味着从内存写出
 前缀是File，意味着功能是对文件操作，所以**FileOutputStream就是从内存写出到文件的输出流**
@@ -480,7 +484,7 @@ public class FileOutputStreamDemo {
 	}
 }
 ```
-#### 将数据续写入到已有文件中（以及续写换行符）
+##### 将数据续写入到已有文件中（以及续写换行符）
 如果仍然使用new FileOutputStream(File file)的方式获取到file的输出字节流，
 那么调用write方法后写入的内容会覆盖file文件中已有的内容
 查找jdk文档，发现有一个**FileOutputStream(File file, boolean append)构造方法**，
@@ -568,3 +572,221 @@ public class FileOutputStreamDemo3 {
 	}
 }
 ```
+#### InputStream：所有输入字节流类的超类
+- 操作的数据都是字节
+- 定义了输入字节流的基本共性功能
+- 本身是个抽象类，不能直接new出一个实例
+- 输出流中定义的读方法都是read
+ - int read()方法：读取一个**字节的值**并返回，如果没有读取到，则返回-1
+ - int read(byte[] b)方法：读取一定量的字节数，并存储到字节数组中，返回读取到的**字节数**
+- **规律：它的所有子类名称后缀是InputStream，子类的名称前缀代表功能**
+
+##### 将文件中的数据读取到内存中
+**下面以FileInputStream为例：将文件中的数据读取到内存中**
+FileInputStream后缀是InputStream，意味着从外面读入到内存
+前缀是File，意味着功能是对文件操作，所以**FileInputStream就是从文件读入到内存中的文件输入流**
+
+```java
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class FileInputStreamDemo {
+
+	public static void main(String[] args)
+	{
+		File testFile = new File("testDir\\testFile");
+		
+		FileInputStream fis = null;
+		try {
+			// 将 字节读取流 与 数据源 关联起来
+			fis = new FileInputStream(testFile);
+			
+			// 每次读取一个字节并且输出
+			int b = 0;
+			while((b = fis.read())!=-1)
+			{
+				System.out.println(b);
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(fis != null)
+			{
+				try {
+					fis.close();
+				} catch (IOException e) {
+					throw new RuntimeException();
+				}
+				fis = null;
+			}
+		}
+	}
+}
+```
+上面这种是一次从文件中读取一个字节到内存中，利用read()
+下面这种是一次从文件中读取多个字节到缓冲数组中，利用read(byte[] b)
+```java
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class FileInputStreamDemo2 {
+
+	public static void main(String[] args)
+	{
+		File testFile = new File("testDir\\testFile");
+		
+		FileInputStream fis = null;
+		try {
+			// 将 字节读取流 与 数据源 关联起来
+			fis = new FileInputStream(testFile);
+			
+			// 创建一个缓冲字节数组   习惯用1024Byte   刚好是1M， 当然可以更大，一般都是1024的整数倍
+			// 例如：2048、 4096、等等   直接算出来，不要写成2*1024、 4*1024 这样不好！！！
+			byte[] buf = new byte[1024];
+			
+			// 读取内容到缓冲字节数组中
+			int len = 0; 
+			while((len = fis.read(buf))!=-1)
+			{
+				System.out.println(new String(buf, 0, len));
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(fis != null)
+			{
+				try {
+					fis.close();
+				} catch (IOException e) {
+					throw new RuntimeException();
+				}
+				fis = null;
+			}
+		}
+	}
+}
+```
+**后一种写法比前一种写法效率更高！！！**
+- **举个例子：如果是要读取一个视频文件，前一种写法，每读取一个字节都要循环一次，简直要爆炸，而后面的要少循环很多很多次**
+
+#### 文件拷贝(以字节形式拷贝)
+**注意：为什么以字节的形式拷贝？因为数据在文件(硬盘)中的存储形式本来就是字节，用字节形式拷贝完全不用考虑编码问题！完全没有必要将字节先转换成字符串然后再将字符串存储到文件中，否则反而会出现乱码问题！**
+```java
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class CopyFileTest {
+
+	public static void main(String[] args) throws IOException {
+
+		// 拷贝文件
+		// 原理：读取一个文件中的数据，并将这些读入到的数据写入另一个文件中
+		
+		// 1、明确源文件和目的文件
+		File srcFile = new File("testDir\\testFile");
+		File destFile = new File("testDir\\testFile2");
+		
+		// 2、明确字节流输入流和源文件关联，字节输出流和目的文件关联
+		FileInputStream fis = new FileInputStream(srcFile);
+		FileOutputStream fos = new FileOutputStream(destFile);
+		
+		// 3、定义一个缓冲数组
+		byte[] buf = new byte[2048];
+		int len = 0;
+		// 每次从源文件读取一个字节数组，并将字节数组写入到目的文件中
+		while((len = fis.read(buf)) != -1)
+		{
+			fos.write(buf, 0, len);
+		}
+		
+		// 4、关闭资源
+		fos.close();
+		fis.close();
+	}
+
+}
+```
+上面的文件拷贝，也可以一个字节一个字节的拷贝，但是同理，效率很低，数据量很大时，感觉很爆炸~~~~~
+**注意：文件拷贝不分文件类型（无论文本、图片、视频、音频），只要是文件即可，因为文件中的数据都是字节存储的**
+
+#### 字节输入流的avaliable方法
+字节输入流的avaliable方法的作用是返回一个数值，表示与当前输入流绑定的数据源的字节数，
+- **如果字节数不多，可以一次定义一个字节数确定的缓冲数组，read一次就够了**
+- **如果是大文件，字节数很多很多，则不能使用上面的思路，否则，一次定义一个太大的缓冲数组，可能导致堆内存溢出**
+针对第一个如果，演示如下：
+```java
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class FileInputStreamDemo3 {
+
+	public static void main(String[] args)
+	{
+		File testFile = new File("testDir\\testFile");
+		
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(testFile);
+			
+			// 如果数据源文件很大，字节数很多，会导致堆内存溢出
+			byte[] buf = new byte[fis.available()];	
+			fis.read(buf);
+			// 读取内容到缓冲字节数组中
+			System.out.println(new String(buf));
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(fis != null)
+			{
+				try {
+					fis.close();
+				} catch (IOException e) {
+					throw new RuntimeException();
+				}
+				fis = null;
+			}
+		}
+	}
+}
+```
+### 编码表
+**ascii：**
+ - 只用了一个字节的后7位来存储，第一位一定是0。即表示的字节一定是正数。
+
+**iso8859-1：**
+ - 拉丁码表：只用了一个字节的8位。即一个字节可能为正数，可能为负数。
+
+**GBK：**
+ - 目前最常用的中文码表：其中包含2万的中文和符号。用两个字节表示。其中一部分文字对应的两个字节都是负数。
+ - 另一部分文字对应的两个字节是：第一个字节为负数，第二个字节为正数
+
+**unicode：**
+ - 国际标准码表：无论是什么文字，都用两个字节存储。Java中的char类型用的就是这个码表。例如：char c = 'a';虽然'a'是一个字节，但这里依旧是存的两个字节。
+ - 在Java中，字符串是按照系统默认码表来解析的。简体中文版字符串默认的码表是GBK。
+
+**UTF-8：**
+ - 基于unicode，第一个U就代表unicode，这个码表的特点在于：如果一个字节就可以存储数据，则不会用两个字节来存储。
+ - 而且这个码表更加标准化，在每一个字节头加入了编码信息 。
+
+**常用码表：**
+ - GBK、UTF-8、ISO-8859-1、
+
+#### 编码：
+**文字---->二进制(数字)：编码**，看得懂的变成看不懂的就是编码！！！
+#### 解码：
+**二进制(数字)---->文字：解码**，看不懂的变成看得懂的就是解码！！！
+
+### 总结
+总结几句话：
+- 写数据到文件：输出流，绑定目的文件
+- 读数据到内存：输入流，绑定源文件
+- 对有条件的文件操作：使用过滤器
+- 对目录下的文件操作，且包含子目录下的：使用递归/队列
