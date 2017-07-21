@@ -857,10 +857,12 @@ public class FileWriterDemo {
 #### 小总结
 FileReader和FileWriter中的字符集都是默认的，不可以手动改变的，由系统语言环境决定。
 
-### 字节流与字符流的桥梁
+### 字符转换流（字节流与字符流的桥梁）
 #### OutputStreamWriter
 
 **OutputStreamWriter：是自行指定编码格式和底层字节流的字符输出流**
+
+**FileWriter是它的采用默认编码表的子类，所以FileWriter是个便捷类**
 
 **OutputStreamWriter：字符流通向字节流的桥梁：可使用【指定的字符集】将要写出到目标的字符编码成字节。它使用的字符集可以由名称指定或显式给定，否则将接受平台默认的字符集。**
 注意：前面说了可以近似地认为字符流=字节流+字符集+字节缓冲区，而字节缓冲区又由字符集来确定。所以我们要是自行指定字符集，来构造出这个OutputStreamWriter，那么还缺一个字节流(OutputStream)，所以在构造字符流(OutputStreamWriter)，我们要传入一个合适的OutputStream，具体什么类型的要看具体情况。
@@ -896,7 +898,9 @@ public class OutputStreamWriterDemo {
 
 #### InputStreamReader
 
-**InputStreamReader：是自行指定编码格式和底层字节流的字符输入流**
+**InputStreamReader：是自行指定编码格式和底层字节流的字符输入流** 
+
+**FileReader是它的采用默认编码表的子类，所以FileReader是个便捷类**
 
 **InputStreamReader：字节流通向字符流的桥梁：它使用【指定的字符集】将要输入到内存的字节内容解码为字符。它使用的字符集可以由名称指定或显式给定，或者可以接受平台默认的字符集。**
 
@@ -938,6 +942,86 @@ public class InputStreamReaderDemo {
 
 }
 ```
+
+#### 文件拷贝练习
+```java
+import java.io.FileReader;
+import java.io.FileWriter;
+
+public class CopyFile {
+
+	public static void main(String[] args) throws Exception {
+
+		/*
+		 * 练习：复制文本文件
+		 * 思路：
+		 * 1、既然是文本文件，涉及到编码表，要使用字符流（用字节流也可以复制，但是如果想要拿到指定文字内容则不方便，所以这里使用字符流）
+		 * 2、操作的是文本文件，涉及到硬盘
+		 * 3、有指定码表吗？没有，所以使用默认
+		 * 依上可知：操作的是文件，使用默认码表：那么使用字符流操作文件的便捷类（FileReader和FileWriter）最合适
+		 */
+		// 输入流绑定数据源，输出流绑定目标文件
+		FileReader fr = new FileReader("testDir\\testFile4");
+		FileWriter fw = new FileWriter("testDir\\testFile4_copy");
+		
+		// 为了提高效率，定义一个字符数组
+		int len = 0; // 获取的字符个数
+		char[] buf = new char[1024];
+		
+		// 开始拷贝
+		while((len = fr.read(buf)) != -1)
+		{
+			fw.write(new String(buf, 0, len));
+		}
+		
+		// 关闭资源
+		fw.close();
+		fr.close();
+	}
+
+}
+```
+### 缓冲字符流
+**BufferedReader :** 从字符输入流中读取文本，缓冲各个字符，从而实现字符、数组和行的高效读取。 
+**BufferedWriter :** 将文本写入字符输出流，缓冲各个字符，从而提供单个字符、数组和字符串的高效写入。 
+- 问题：自定义数组就可以解决缓冲区问题，并提高效率，那么为什么还要使用缓冲字符流对象呢？
+ - 答：因为缓冲区对象中除了封装数组以外，还提供了更多的操作，比如跨平台的“行”功能！！！
+ 
+**注意：**既然是建立在字符流的基础上，所以**构造缓冲字符流对象时，要先有字符流对象**
+
+下面用缓冲字符流对象进行文件拷贝：
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+public class CopyFileByBufferedCharacterStream {
+
+	public static void main(String[] args) throws Exception {
+
+		BufferedReader bufr = new BufferedReader(new FileReader("testDir\\testFile5"));
+		BufferedWriter bufw = new BufferedWriter(new FileWriter("testDir\\testFile5_copy"));
+		
+		// 循环读写一行数据
+		String line = null;
+		while((line = bufr.readLine()) != null)
+		{
+			bufw.write(line);
+			// 写入换行(跨平台的换行)
+			bufw.newLine();
+			// 写多行，一定要用flush刷新
+			bufw.flush();
+		}
+		
+		// 关闭流
+		bufw.close();
+		bufr.close();
+	}
+}
+```
+
+
 
 ### 总结
 总结几句话：
