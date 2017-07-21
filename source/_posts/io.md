@@ -784,9 +784,167 @@ public class FileInputStreamDemo3 {
 #### 解码：
 **二进制(数字)---->文字：解码**，看不懂的变成看得懂的就是解码！！！
 
+
+### 字符流
+字符流：用来操作字符文件的便捷类。**它的内部使用：字符集+字节缓冲区**
+- **字节流针对字节**进行操作
+- **字符流针对字符**进行操作，既然是针对字符操作，那么就比字节流多了个字符集，并且由这个字符集来确定一个适当的字节缓冲区，否则会乱码
+ - 即如果文件中存的是中文，那么假设字符流内部使用的字符集就是GBK，而字节缓冲区就会是2的整数倍，因为字符流会根据这个GBK字符集得知：读取到的每两个字节转换成一个字符！！！
+- 字节流和字符流的方法都差不多，例如：字节流使用read()方法每次读取的是一个字节，字符流使用read()方法每次读取的是一个字符！
+- **近似地可以认为：字符流=字节流+字符集+字节缓冲区 ， 字节流基本上都有个对应的字符流，就是说这些字符流的底层都有个与之对应的字节流。**
+- **Reader 对应 InputStream，Writer 对应 OutputStream**
+- **flush()方法的作用：**写出字符流比写出字节流，多了一个flush()方法，**flush方法的作用是**：“刷新该流的缓冲。如果该流已保存缓冲区中各种 write() 方法的所有字符，则立即将它们写入预期目标。”   **原因是**：写出字符流相当于写出字节流+字符集+字节缓冲区，写出字符流调用write方法写出内容时，是将这些内容先放到字节缓冲区中的，只有字节缓冲区满了，才会自动将缓冲区中保存的内容写入目标文件中。所以flush()方法的效果就是不等待缓冲区满，也自动将缓冲区中保存的内容写入目标文件。
+- **写出字符流的close()方法**在关闭流之前，会默认调用一次flush()方法。
+ - flush()和close()的区别：
+   - flush()：将流中的缓冲区中保存的数据刷新到目标中，刷新后，流还可以继续使用！
+   - close(): 关闭资源，但在关闭前会将缓冲区中的数据先刷新到目标，否则会丢失数据，然后再关闭流，之后，流将不可用。
+   - 关联：如果写入数据多，一定要边写边flush()，最后一次可以不用flush()，直接由close()来刷新并关闭！！
+
+#### FileReader
+根据上面的规则：
+- FileReader  相当于  FileInputStream+字符集
+- FileReader读一个字符，FileInputStream读一个字节
+- FileReader、FileInputStream都是功能都是操作File
+
+下面用FileReader来读取文件中的中文：
+```java
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderDemo {
+
+	public static void main(String[] args) throws IOException {
+
+		// 字符流和字节流的方法都很相似！！！构造方法也是
+		FileReader fr = new FileReader("testDir\\testFile");	// FileReader这个字符流的底层就是FileInputStream字节流
+		
+		// 定义一个字符的值
+		int ch = 0;
+		// 使用字符流每读取一个字符，底层实现是：读取多个字节(具体读多少，是将字符集拿到码表中去查询然后再确定)，然后将这些字节转换成一个字符
+		while((ch = fr.read()) != -1)
+		{
+			// 将每个字符值转换成字符
+			System.out.print((char)ch);
+		}
+	}
+}
+```
+#### FileWriter
+下面用FileWriter来写出中文到文件中：
+```java
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileWriterDemo {
+
+	public static void main(String[] args) throws IOException {
+
+		FileWriter fw = new FileWriter("testDir\\testFile3");
+		
+		// 写出这行文字的底层实现为：将这行文字先根据字符集查找码表，
+		// 然后编码成字节，并且保存到缓冲字节数组中,并不是直接写到目标文件中
+		fw.write("你好，谢谢，再见！");
+		
+		// 这里只写一次，可以省略此行代码
+		fw.flush();
+		
+		// 关闭资源
+		fw.close();
+	}
+
+}
+```
+#### 小总结
+FileReader和FileWriter中的字符集都是默认的，不可以手动改变的，由系统语言环境决定。
+
+### 字节流与字符流的桥梁
+#### OutputStreamWriter
+
+**OutputStreamWriter：是自行指定编码格式和底层字节流的字符输出流**
+
+**OutputStreamWriter：字符流通向字节流的桥梁：可使用【指定的字符集】将要写出到目标的字符编码成字节。它使用的字符集可以由名称指定或显式给定，否则将接受平台默认的字符集。**
+注意：前面说了可以近似地认为字符流=字节流+字符集+字节缓冲区，而字节缓冲区又由字符集来确定。所以我们要是自行指定字符集，来构造出这个OutputStreamWriter，那么还缺一个字节流(OutputStream)，所以在构造字符流(OutputStreamWriter)，我们要传入一个合适的OutputStream，具体什么类型的要看具体情况。
+
+**下面用OutputStreamWriter来【按一定的编码格式】向文件中写出字符内容**
+```java
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+
+public class OutputStreamWriterDemo {
+
+	public static void main(String[] args) throws Exception {
+
+		// 我们要向文件中按指定编码格式UTF-8输出字符内容，必须有个底层的字节流;
+		// 因为是文件，所以用FileOutputStream最合适
+		FileOutputStream fos = new FileOutputStream("testDir\\testFile4");
+		
+		// 再指定要求的编码格式UTF-8，构造出这个输出字符流
+		OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+		
+		// 输出内容:底层实现是：write方法将这一句话写到字节缓冲区中，
+		// 这些字节是按照指定的编码格式UTF-8编码然后保存进去的，暂时还没有写到文件中
+		osw.write("你好，谢谢，再见！");
+		
+		// 这里可以不用调用flush()方法，因为只输出一次，直接利用close()方法的刷新即可。
+		
+		// 关闭资源：先刷新，将字节缓冲区(字节数组)中的内容通过FileOutputStram来write到文件中，然后关闭流
+		osw.close();
+	}
+
+}
+```
+
+#### InputStreamReader
+
+**InputStreamReader：是自行指定编码格式和底层字节流的字符输入流**
+
+**InputStreamReader：字节流通向字符流的桥梁：它使用【指定的字符集】将要输入到内存的字节内容解码为字符。它使用的字符集可以由名称指定或显式给定，或者可以接受平台默认的字符集。**
+
+**InputStreamReader的构造与OutputStreamWriter同理**
+
+**下面用InputStreamReader来【按一定的编码格式】从文件中读取字符内容**
+```java
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
+public class InputStreamReaderDemo {
+
+	public static void main(String[] args) throws Exception {
+
+		// 我们要从文件中按指定解码格式UTF-8读出字符内容，必须有个底层的字节流;
+		// 因为是文件，所以用FileInputStream最合适
+		FileInputStream fis = new FileInputStream("testDir\\testFile4");
+		
+		// 再指定要求的解码格式UTF-8，构造出这个输入字符流
+		InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+		
+		// 定义读取字符个数
+		int len = 0;
+		char[] buf  = new char[1024];
+		
+		// 循环读取字符：底层实现是：
+		// 先通过FileInputStream读取文件中的字节到内部字节缓冲数组中
+		// 然后将字节缓冲数组中的字节根据UTF-8码表查找出对应的文字
+		// 再将这些文字放到buf字符数组中
+		while((len = isr.read(buf)) != -1)
+		{
+			// 输出字符内容
+			System.out.println(new String(buf, 0, len));
+		}
+		
+		// 关闭资源：注意：输入流不像输出流，不需要flush，自然也没有这个方法
+		isr.close();
+	}
+
+}
+```
+
 ### 总结
 总结几句话：
 - 写数据到文件：输出流，绑定目的文件
 - 读数据到内存：输入流，绑定源文件
 - 对有条件的文件操作：使用过滤器
 - 对目录下的文件操作，且包含子目录下的：使用递归/队列
+- 使用默认系统字符集读写文件：使用FileReader和FileWriter
+- 按指定编码格式读写文件，使用InputStreamReader和OutputStreamWriter
+- 编码与解码格式一致，才不会乱码
